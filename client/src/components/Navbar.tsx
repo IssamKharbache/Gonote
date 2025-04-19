@@ -1,0 +1,13 @@
+import ThemeToggle from "./ThemeToggle";
+
+export default function Navbar() {
+  return (
+    <nav className="flex p-2 mb-5  xl:m-10 items-center justify-between bg-blue-200 dark:bg-blue-950   xl:max-w-7xl xl:mx-auto  xl:rounded-full  transition-colors  duration-300 ">
+      <div className="relative ml-3  bg-white dark:bg-blue-900 text-blue-900 dark:text-white p-2 rounded-full  transition-colors duration-300 px-10">
+        <div className="bg-blue-500  absolute -top-8 -left-5 w-12 h-12 rounded-full" />
+        <p className="text-3xl ">Task Tide</p>
+      </div>
+      <ThemeToggle />
+    </nav>
+  );
+}
