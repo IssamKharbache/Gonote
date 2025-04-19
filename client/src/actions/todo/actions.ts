@@ -1,4 +1,4 @@
-import { Todo } from "@/components/TodoList";
+import { Todo } from "@/components/todo/TodoList";
 import Swal from "sweetalert2";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -12,7 +12,7 @@ export const fetchTodos = async () => {
     }
     return data || [];
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
   }
 };
 
@@ -29,7 +29,7 @@ export const updateTodoAction = async (id: number) => {
     if (res.ok) {
       Swal.fire({
         icon: "success",
-        title: "Your note is updated successfully",
+        title: "",
         showConfirmButton: false,
         timer: 1500,
       });
@@ -64,5 +64,31 @@ export const createTodoAction = async (body: string) => {
       title: "Something went wrong",
       text: error,
     });
+  }
+};
+
+export const deleteTodoAction = async (id: number) => {
+  try {
+    const res = await fetch(`${backendUrl}/api/todos/delete/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      Swal.fire({
+        icon: "success",
+        title: "Deleted successfully",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      return data;
+    } else {
+      throw new Error(data.error || "Something went wrong, try again later");
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
