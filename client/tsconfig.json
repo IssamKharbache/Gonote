@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
+    "baseUrl": ".",
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
     "skipLibCheck": true,

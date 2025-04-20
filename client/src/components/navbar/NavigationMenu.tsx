@@ -25,7 +25,7 @@ const NavigationMenu = () => {
             <CloudIcon />
           </DropdownMenuItem>
         </Link>
-        <Link to="/about">
+        <Link to="/register">
           <DropdownMenuItem className="flex items-center justify-between cursor-pointer">
             <span>Sign up</span>
             <FiUserPlus />

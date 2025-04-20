@@ -1,8 +1,9 @@
+import RoutePendingLoader from "@/components/loaders/RoutePendingLoader";
 import { createLazyFileRoute } from "@tanstack/react-router";
 
 export const Route = createLazyFileRoute("/about")({
   component: RouteComponent,
-  pendingComponent: () => <div className="text-5xl">Loading ....</div>,
+  pendingComponent: () => <RoutePendingLoader />,
 });
 
 function RouteComponent() {

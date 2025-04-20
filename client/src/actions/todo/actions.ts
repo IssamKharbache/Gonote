@@ -1,7 +1,7 @@
 import { Todo } from "@/components/todo/TodoList";
 import Swal from "sweetalert2";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const fetchTodos = async () => {
   try {
@@ -12,7 +12,11 @@ export const fetchTodos = async () => {
     }
     return data || [];
   } catch (error) {
-    console.log(error.message);
+    Swal.fire({
+      icon: "error",
+      title: "Something went wrong",
+      text: "Check out your internet connection and try again",
+    });
   }
 };
 
@@ -38,7 +42,11 @@ export const updateTodoAction = async (id: number) => {
       throw new Error(data.error || "Something went wrong, try again later");
     }
   } catch (error) {
-    console.log(error);
+    Swal.fire({
+      icon: "error",
+      title: "Something went wrong",
+      text: "Check out your internet connection and try again",
+    });
   }
 };
 
@@ -62,7 +70,7 @@ export const createTodoAction = async (body: string) => {
     Swal.fire({
       icon: "error",
       title: "Something went wrong",
-      text: error,
+      text: "Check out your internet connection and try again",
     });
   }
 };
@@ -89,6 +97,10 @@ export const deleteTodoAction = async (id: number) => {
       throw new Error(data.error || "Something went wrong, try again later");
     }
   } catch (error) {
-    console.log(error);
+    Swal.fire({
+      icon: "error",
+      title: "Something went wrong",
+      text: "Check out your internet connection and try again",
+    });
   }
 };

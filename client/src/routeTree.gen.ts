@@ -13,6 +13,8 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as RegisterImport } from './routes/register'
+import { Route as LoginImport } from './routes/login'
 import { Route as CloudImport } from './routes/cloud'
 import { Route as IndexImport } from './routes/index'
 import { Route as UncompletedPostIdImport } from './routes/uncompleted/$postId'
@@ -28,6 +30,18 @@ const AboutLazyRoute = AboutLazyImport.update({
   path: '/about',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/about.lazy').then((d) => d.Route))
+
+const RegisterRoute = RegisterImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LoginRoute = LoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const CloudRoute = CloudImport.update({
   id: '/cloud',
@@ -65,6 +79,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CloudImport
       parentRoute: typeof rootRoute
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterImport
+      parentRoute: typeof rootRoute
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -87,6 +115,8 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cloud': typeof CloudRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/about': typeof AboutLazyRoute
   '/uncompleted/$postId': typeof UncompletedPostIdRoute
 }
@@ -94,6 +124,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cloud': typeof CloudRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/about': typeof AboutLazyRoute
   '/uncompleted/$postId': typeof UncompletedPostIdRoute
 }
@@ -102,22 +134,45 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/cloud': typeof CloudRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/about': typeof AboutLazyRoute
   '/uncompleted/$postId': typeof UncompletedPostIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cloud' | '/about' | '/uncompleted/$postId'
+  fullPaths:
+    | '/'
+    | '/cloud'
+    | '/login'
+    | '/register'
+    | '/about'
+    | '/uncompleted/$postId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cloud' | '/about' | '/uncompleted/$postId'
-  id: '__root__' | '/' | '/cloud' | '/about' | '/uncompleted/$postId'
+  to:
+    | '/'
+    | '/cloud'
+    | '/login'
+    | '/register'
+    | '/about'
+    | '/uncompleted/$postId'
+  id:
+    | '__root__'
+    | '/'
+    | '/cloud'
+    | '/login'
+    | '/register'
+    | '/about'
+    | '/uncompleted/$postId'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CloudRoute: typeof CloudRoute
+  LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
   AboutLazyRoute: typeof AboutLazyRoute
   UncompletedPostIdRoute: typeof UncompletedPostIdRoute
 }
@@ -125,6 +180,8 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CloudRoute: CloudRoute,
+  LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
   AboutLazyRoute: AboutLazyRoute,
   UncompletedPostIdRoute: UncompletedPostIdRoute,
 }
@@ -141,6 +198,8 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/cloud",
+        "/login",
+        "/register",
         "/about",
         "/uncompleted/$postId"
       ]
@@ -150,6 +209,12 @@ export const routeTree = rootRoute
     },
     "/cloud": {
       "filePath": "cloud.tsx"
+    },
+    "/login": {
+      "filePath": "login.tsx"
+    },
+    "/register": {
+      "filePath": "register.tsx"
     },
     "/about": {
       "filePath": "about.lazy.tsx"

@@ -10,10 +10,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var collection = config.GetTodoCollection()
+var todoCollection = config.GetTodoCollection()
 
 func GetTodos(c *fiber.Ctx) error {
-	cursor, err := collection.Find(context.Background(), bson.M{})
+	cursor, err := todoCollection.Find(context.Background(), bson.M{})
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func CreateTodo(c *fiber.Ctx) error {
 
 	todo.ID = primitive.NewObjectID()
 
-	_, err := collection.InsertOne(context.Background(), todo)
+	_, err := todoCollection.InsertOne(context.Background(), todo)
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func UpdateTodo(c *fiber.Ctx) error {
 
 	var result models.Todo
 	filter := bson.M{"_id": objectId}
-	err = collection.FindOne(context.Background(), filter).Decode(&result)
+	err = todoCollection.FindOne(context.Background(), filter).Decode(&result)
 
 	if err != nil {
 		return err
@@ -69,7 +69,7 @@ func UpdateTodo(c *fiber.Ctx) error {
 
 	update := bson.M{"$set": bson.M{"completed": !result.Completed}}
 
-	_, err = collection.UpdateOne(context.Background(), filter, update)
+	_, err = todoCollection.UpdateOne(context.Background(), filter, update)
 
 	if err != nil {
 		return err
@@ -97,7 +97,7 @@ func UpdateTodoContent(c *fiber.Ctx) error {
 	filter := bson.M{"_id": objectId}
 	update := bson.M{"$set": bson.M{"body": todo.Body}}
 
-	_, err = collection.UpdateOne(context.Background(), filter, update)
+	_, err = todoCollection.UpdateOne(context.Background(), filter, update)
 
 	if err != nil {
 		return err
@@ -117,7 +117,7 @@ func DeleteTodo(c *fiber.Ctx) error {
 
 	filter := bson.M{"_id": objectId}
 
-	_, err = collection.DeleteOne(context.Background(), filter)
+	_, err = todoCollection.DeleteOne(context.Background(), filter)
 
 	if err != nil {
 		return err
@@ -138,7 +138,7 @@ func GetTodo(c *fiber.Ctx) error {
 	var result models.Todo
 	filter := bson.M{"_id": objectId}
 
-	err = collection.FindOne(context.Background(), filter).Decode(&result)
+	err = todoCollection.FindOne(context.Background(), filter).Decode(&result)
 
 	if err != nil {
 		return err

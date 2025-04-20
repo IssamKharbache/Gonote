@@ -1,5 +1,6 @@
 import { fetchTodos } from "@/actions/todo/actions";
 import EmptyTodoList from "@/components/homeUi/EmptyTodoList";
+import RoutePendingLoader from "@/components/loaders/RoutePendingLoader";
 import TodoItem from "@/components/todo/TodoItem";
 import { Todo } from "@/components/todo/TodoList";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/cloud")({
     };
   },
 
-  pendingComponent: () => <div className="text-5xl">Loading ....</div>,
+  pendingComponent: () => <RoutePendingLoader />,
 });
 
 function RouteComponent() {

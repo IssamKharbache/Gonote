@@ -44,3 +44,11 @@ func GetTodoCollection() *mongo.Collection {
 	}
 	return DB.Database("taskTide").Collection("todos")
 }
+
+func GetUserCollection() *mongo.Collection {
+	ConnectDB()
+	if DB == nil {
+		log.Fatal("DB connection is nil — did you forget to call ConnectDB()?")
+	}
+	return DB.Database("taskTide").Collection("users")
+}
