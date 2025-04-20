@@ -23,6 +23,13 @@ import Swal from "sweetalert2";
 
 const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordChecks, setPasswordChecks] = useState({
+    length: false,
+    uppercase: false,
+    number: false,
+    specialChar: false,
+  });
+
   const form = useForm<signUpSchemaType>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -34,9 +41,7 @@ const RegisterForm = () => {
   });
 
   const { mutate: registerUser, isPending } = useMutation({
-    mutationFn: async (userData: signUpSchemaType) => {
-      return await createUser(userData);
-    },
+    mutationFn: createUser,
     onSuccess: () => {
       Swal.fire({
         icon: "success",
@@ -45,7 +50,7 @@ const RegisterForm = () => {
       });
       form.reset();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       Swal.fire({
         icon: "error",
         title: "Registration failed",
@@ -58,13 +63,24 @@ const RegisterForm = () => {
     registerUser(data);
   };
 
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPasswordChecks({
+      length: value.length >= 8,
+      uppercase: /[A-Z]/.test(value),
+      number: /[0-9]/.test(value),
+      specialChar: /[^A-Za-z0-9]/.test(value),
+    });
+    form.setValue("password", value, { shouldValidate: true });
+  };
+
   return (
-    <div className="w-full min-h-screen flex items-center justify-center px-4 py-12 transition-colors duration-300">
+    <div className="w-full flex items-center justify-center px-4 py-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="w-full max-w-md bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-blue-200 space-y-8 transition-colors duration-300"
+        className="w-full max-w-md bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-blue-200 space-y-8"
       >
         <div className="text-center space-y-2">
           <motion.div
@@ -87,44 +103,39 @@ const RegisterForm = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
+              {/* First Name */}
               <FormField
                 control={form.control}
                 name="first_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-medium text-blue-600 dark:text-blue-300 uppercase tracking-wider">
-                      First name
-                    </FormLabel>
+                    <FormLabel>First name</FormLabel>
                     <FormControl>
-                      <motion.div whileHover={{ scale: 1.01 }}>
-                        <Input
-                          placeholder="John"
-                          className="focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-blue-800 dark:border-blue-700 dark:text-white dark:placeholder-blue-400"
-                          {...field}
-                        />
-                      </motion.div>
+                      <Input
+                        placeholder="John"
+                        className="mt-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-blue-800 dark:border-blue-700 dark:text-white dark:placeholder-blue-400"
+                        {...field}
+                      />
                     </FormControl>
+                    {/* Reserve 1rem of space for the message */}
                     <FormMessage className="text-xs text-red-500 dark:text-red-400" />
                   </FormItem>
                 )}
               />
 
+              {/* Last Name */}
               <FormField
                 control={form.control}
                 name="last_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-medium text-blue-600 dark:text-blue-300 uppercase tracking-wider">
-                      Last name
-                    </FormLabel>
+                    <FormLabel>Last name</FormLabel>
                     <FormControl>
-                      <motion.div whileHover={{ scale: 1.01 }}>
-                        <Input
-                          placeholder="Doe"
-                          className="focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-blue-800 dark:border-blue-700 dark:text-white dark:placeholder-blue-400"
-                          {...field}
-                        />
-                      </motion.div>
+                      <Input
+                        placeholder="Doe"
+                        className="mt-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-blue-800 dark:border-blue-700 dark:text-white dark:placeholder-blue-400"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage className="text-xs text-red-500 dark:text-red-400" />
                   </FormItem>
@@ -132,67 +143,78 @@ const RegisterForm = () => {
               />
             </div>
 
+            {/* Email */}
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-medium text-blue-600 dark:text-blue-300 uppercase tracking-wider">
-                    Email
-                  </FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <motion.div whileHover={{ scale: 1.01 }}>
-                      <Input
-                        type="email"
-                        placeholder="you@example.com"
-                        className="focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-blue-800 dark:border-blue-700 dark:text-white dark:placeholder-blue-400"
-                        {...field}
-                      />
-                    </motion.div>
+                    <Input
+                      type="email"
+                      placeholder="you@example.com"
+                      className="mt-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-blue-800 dark:border-blue-700 dark:text-white dark:placeholder-blue-400"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage className="text-xs text-red-500 dark:text-red-400" />
                 </FormItem>
               )}
             />
 
+            {/* Password */}
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-blue-600 dark:text-blue-300 uppercase tracking-wider">
-                    Password
-                  </FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <motion.div
-                      whileHover={{ scale: 1.01 }}
-                      className="relative"
-                    >
+                    <div className="relative">
                       <Input
                         type={showPassword ? "text" : "password"}
                         placeholder="type your password"
-                        className="focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-blue-800 dark:border-blue-700 dark:text-white dark:placeholder-blue-400 text-xl pr-12"
-                        style={{
-                          paddingRight: "3rem",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
+                        className="mt-2 pr-12 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-blue-800 dark:border-blue-700 dark:text-white dark:placeholder-blue-400 text-xl"
                         {...field}
+                        onChange={handlePasswordChange}
                       />
                       <button
                         type="button"
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-500 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200 transition-colors cursor-pointer z-10"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-500 dark:text-blue-300"
                         onClick={() => setShowPassword(!showPassword)}
                       >
-                        {showPassword ? (
-                          <EyeOff className="h-5 w-5" />
-                        ) : (
-                          <Eye className="h-5 w-5" />
-                        )}
+                        {showPassword ? <EyeOff /> : <Eye />}
                       </button>
-                    </motion.div>
+                    </div>
                   </FormControl>
                   <FormMessage className="text-xs text-red-500 dark:text-red-400" />
+
+                  {/* Password strength hints (optional) */}
+                  <div className="mt-2 text-xs space-y-1">
+                    <div
+                      className={`flex items-center ${passwordChecks.length ? "text-green-500" : "text-gray-500"}`}
+                    >
+                      {passwordChecks.length ? "✓" : "•"} At least 8 characters
+                    </div>
+                    <div
+                      className={`flex items-center ${passwordChecks.uppercase ? "text-green-500" : "text-gray-500"}`}
+                    >
+                      {passwordChecks.uppercase ? "✓" : "•"} At least one
+                      uppercase letter
+                    </div>
+                    <div
+                      className={`flex items-center ${passwordChecks.number ? "text-green-500" : "text-gray-500"}`}
+                    >
+                      {passwordChecks.number ? "✓" : "•"} At least one number
+                    </div>
+                    <div
+                      className={`flex items-center ${passwordChecks.specialChar ? "text-green-500" : "text-gray-500"}`}
+                    >
+                      {passwordChecks.specialChar ? "✓" : "•"} At least one
+                      special character
+                    </div>
+                  </div>
                 </FormItem>
               )}
             />
@@ -201,7 +223,7 @@ const RegisterForm = () => {
               <Button
                 type="submit"
                 disabled={isPending}
-                className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 py-3 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-300"
+                className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 py-3 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 {isPending ? "Creating account..." : "Create account"}
               </Button>
@@ -215,7 +237,7 @@ const RegisterForm = () => {
             <Link to="/login">
               <motion.span
                 whileHover={{ scale: 1.05 }}
-                className="text-blue-800 dark:text-blue-200 font-medium hover:underline cursor-pointer"
+                className="text-blue-800 dark:text-blue-200 font-medium hover:underline"
               >
                 Sign in
               </motion.span>
