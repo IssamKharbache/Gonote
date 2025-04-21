@@ -9,29 +9,46 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func main() {
-	//connection to the data base
+	// Initialize database connection
 	config.ConnectDB()
 
-	//initialize fiber
+	// Create Fiber app
 	app := fiber.New()
-	//allowing cors
+
+	// Middleware
+	app.Use(logger.New()) // For request logging
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: os.Getenv("FRONT_END_URL"),
-		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowOrigins:     os.Getenv("FRONT_END_URL"), // e.g., "http://localhost:3000"
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowMethods:     "GET, POST, PUT, DELETE, OPTIONS",
+		AllowCredentials: true,
 	}))
-	//initialize routes
-	//// initializing the todo routes
+
+	// Initialize routes
 	routes.TodoRoutes(app)
-	//// initializing the user routes
 	routes.UserRoutes(app)
-	//run the server
+
+	// Health check endpoint
+	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.SendString("OK")
+	})
+
+	// Handle 404
+	app.Use(func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Endpoint not found",
+		})
+	})
+
+	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "4000"
 	}
-	//running the server and catching errors if failed
+	log.Printf("Server starting on port %s", port)
 	log.Fatal(app.Listen("0.0.0.0:" + port))
 }

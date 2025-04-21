@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { motion } from "framer-motion";
 import { signUpSchema, signUpSchemaType } from "@/validations/validation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -49,6 +48,12 @@ const RegisterForm = () => {
         text: "Your account has been successfully created",
       });
       form.reset();
+      setPasswordChecks({
+        length: false,
+        uppercase: false,
+        number: false,
+        specialChar: false,
+      });
     },
     onError: (error: any) => {
       Swal.fire({
@@ -75,23 +80,14 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="w-full flex items-center justify-center px-4 py-12">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="w-full max-w-md bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-blue-200 space-y-8"
-      >
+    <div className="flex items-center justify-center px-4 py-12 ">
+      <div className="w-full max-w-lg bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-blue-200 space-y-8 ">
         <div className="text-center space-y-2">
-          <motion.div
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2 }}
-          >
+          <div className="flex items-center justify-center">
             <div className="mx-auto w-14 h-14 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center">
-              <UserPlus2Icon className="text-white" />
+              <UserPlus2Icon className="text-white ml-1.5" size={25} />
             </div>
-          </motion.div>
+          </div>
           <h2 className="text-3xl font-light tracking-tight text-blue-900 dark:text-white">
             Create your account
           </h2>
@@ -101,7 +97,11 @@ const RegisterForm = () => {
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form
+            autoComplete="off"
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6"
+          >
             <div className="grid grid-cols-2 gap-4">
               {/* First Name */}
               <FormField
@@ -117,8 +117,7 @@ const RegisterForm = () => {
                         {...field}
                       />
                     </FormControl>
-                    {/* Reserve 1rem of space for the message */}
-                    <FormMessage className="text-xs text-red-500 dark:text-red-400" />
+                    <FormMessage className="text-xs text-red-500 dark:text-red-400 transition-opacity duration-200" />
                   </FormItem>
                 )}
               />
@@ -190,7 +189,7 @@ const RegisterForm = () => {
                   </FormControl>
                   <FormMessage className="text-xs text-red-500 dark:text-red-400" />
 
-                  {/* Password strength hints (optional) */}
+                  {/* Password strength hints */}
                   <div className="mt-2 text-xs space-y-1">
                     <div
                       className={`flex items-center ${passwordChecks.length ? "text-green-500" : "text-gray-500"}`}
@@ -219,32 +218,28 @@ const RegisterForm = () => {
               )}
             />
 
-            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-              <Button
-                type="submit"
-                disabled={isPending}
-                className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 py-3 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                {isPending ? "Creating account..." : "Create account"}
-              </Button>
-            </motion.div>
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 py-3 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer"
+            >
+              {isPending ? "Creating account..." : "Create account"}
+            </Button>
           </form>
         </Form>
 
         <div className="text-center">
           <p className="text-sm text-blue-600 dark:text-blue-300">
             Already have an account?{" "}
-            <Link to="/login">
-              <motion.span
-                whileHover={{ scale: 1.05 }}
-                className="text-blue-800 dark:text-blue-200 font-medium hover:underline"
-              >
-                Sign in
-              </motion.span>
+            <Link
+              to="/login"
+              className="text-blue-800 dark:text-blue-200 font-medium hover:underline"
+            >
+              Sign in
             </Link>
           </p>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

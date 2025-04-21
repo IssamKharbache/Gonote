@@ -8,9 +8,5 @@ export const Route = createFileRoute("/register")({
 });
 
 function RouteComponent() {
-  return (
-    <div>
-      <RegisterForm />
-    </div>
-  );
+  return <RegisterForm />;
 }

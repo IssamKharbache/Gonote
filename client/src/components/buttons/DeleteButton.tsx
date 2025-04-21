@@ -35,7 +35,7 @@ const DeleteButton = ({ todo }: { todo: Todo }) => {
       onClick={handleDelete}
       className="flex items-center justify-center w-7 h-7 bg-red-500 rounded-full cursor-pointer"
     >
-      <Trash2Icon size={15} className="text-white" />
+      <Trash2Icon size={18} className="text-white" />
     </button>
   );
 };

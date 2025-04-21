@@ -1,13 +1,34 @@
-const EmptyTodoList = ({ text }: { text: string }) => {
+import { motion } from "framer-motion";
+
+export const EmptyTodoList = ({ text }: { text: string }) => {
   return (
-    <div className="max-w-xl mx-auto mt-12  rounded-4xl p-5">
-      <div className="flex flex-col md:flex-row  items-center  gap-5">
-        <img src="/notask.png" alt="notaskfound" className="w-40 md:w-80" />
-        <div className="w-full">
-          <h1 className="text-4xl text-blue-400 dark:text-blue-500">
-            HOORAY !
+    <div className="max-w-xl mx-auto mt-12 p-5">
+      <div className="flex flex-col md:flex-row items-center gap-8">
+        {/* Animated Image */}
+        <motion.div
+          animate={{
+            y: [0, -15, 0],
+            rotate: [-2, 5, -2],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        >
+          <img
+            src="/notask.png"
+            alt="No tasks found"
+            className="w-40 md:w-72"
+          />
+        </motion.div>
+
+        {/* Text Content */}
+        <div className="w-full space-y-3">
+          <h1 className="text-4xl font-semibold text-blue-600 dark:text-blue-400">
+            HOORAY!
           </h1>
-          <h3 className="text-2xl  text-muted-foreground">{text}</h3>
+          <p className="text-xl text-gray-700 dark:text-gray-300">{text}</p>
         </div>
       </div>
     </div>
