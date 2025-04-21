@@ -21,10 +21,11 @@ func main() {
 
 	// Middleware
 	app.Use(logger.New()) // For request logging
+
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     os.Getenv("FRONT_END_URL"), // e.g., "http://localhost:3000"
+		AllowOrigins:     os.Getenv("FRONT_END_URL"),
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
-		AllowMethods:     "GET, POST, PUT, DELETE, OPTIONS",
+		AllowMethods:     "GET, POST, PUT, DELETE, OPTIONS, PATCH",
 		AllowCredentials: true,
 	}))
 

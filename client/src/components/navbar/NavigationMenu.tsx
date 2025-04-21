@@ -31,10 +31,12 @@ const NavigationMenu = () => {
             <FiUserPlus />
           </DropdownMenuItem>
         </Link>
-        <DropdownMenuItem className="flex items-center justify-between cursor-pointer">
-          <span>Log in</span>
-          <User2Icon />
-        </DropdownMenuItem>
+        <Link to="/login">
+          <DropdownMenuItem className="flex items-center justify-between cursor-pointer">
+            <span>Log in</span>
+            <User2Icon />
+          </DropdownMenuItem>
+        </Link>
         <DropdownMenuSeparator />
         <Button className="w-full m-0 p-0 text-xl">Log out</Button>
       </DropdownMenuContent>

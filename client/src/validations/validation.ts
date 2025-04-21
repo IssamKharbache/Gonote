@@ -2,12 +2,6 @@
 
 import { z } from "zod";
 
-export type RegisterFormType = {
-  first_name: string;
-  last_name: string;
-  email: string;
-  password: string;
-};
 export const signUpSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
   last_name: z.string().min(1, "Last name is required"),
@@ -24,3 +18,10 @@ export const signUpSchema = z.object({
 });
 
 export type signUpSchemaType = z.infer<typeof signUpSchema>;
+
+export const loginSchema = z.object({
+  email: z.string().email("Invalid email address").min(1, "Email is required"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export type loginSchemaType = z.infer<typeof loginSchema>;

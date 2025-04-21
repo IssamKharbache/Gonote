@@ -6,7 +6,7 @@ import EmptyTodoList from "../homeUi/EmptyTodoList";
 import Swal from "sweetalert2";
 
 export type Todo = {
-  _id: number;
+  _id: string;
   body: string;
   completed: boolean;
 };
@@ -41,7 +41,7 @@ const TodoList = () => {
     Swal.fire({
       icon: "error",
       title: "Something went wrong",
-      text: error.message,
+      text: "Check your internet connection and try again !",
     });
   }
   return (

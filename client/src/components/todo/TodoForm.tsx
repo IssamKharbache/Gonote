@@ -10,12 +10,17 @@ import { Link } from "@tanstack/react-router";
 const TodoForm = () => {
   //states
   const [newTodo, setNewTodo] = useState<string>("");
+  const [isValidated, setValidated] = useState<boolean>(true);
   //hooks
   const queryCLient = useQueryClient();
 
   const { mutate: createTodo, isPending: isCreating } = useMutation({
     mutationFn: async (e: React.FormEvent) => {
       e.preventDefault();
+      if (newTodo === "") {
+        setValidated(false);
+        return null;
+      }
       await createTodoAction(newTodo);
     },
     mutationKey: ["createTodo"],
@@ -24,18 +29,19 @@ const TodoForm = () => {
       setNewTodo("");
     },
     onError: (error) => {
+      console.log(error);
       Swal.fire({
         icon: "error",
         title: "Something went wrong",
-        text: error.message,
+        text: "Check your internet connection and try again !",
       });
     },
   });
 
   return (
     <>
-      <div className="text-center bg-blue-100/60  dark:bg-blue-900 w-2xl mx-auto rounded-full p-1.5">
-        <span className="text-muted-foreground dark:text-white   m-2 text-xs md:text-lg text-center">
+      <div className="text-center bg-blue-100/60  dark:bg-blue-900 w-full  md:max-w-2xl mx-auto md:rounded-full p-1.5 md:mt-4">
+        <span className="text-muted-foreground dark:text-white   m-2 text-sm md:text-lg text-center">
           Your completed tasks and notes are saved in
           <Link
             to="/cloud"
@@ -47,7 +53,6 @@ const TodoForm = () => {
           and will be deleted after 10 days
         </span>
       </div>
-      <div className=" mb-4  bg-blue-100/40 rounded-full"></div>
       <form
         onSubmit={createTodo}
         className="max-w-2xl mx-auto mt-12 lg:mt-0 p-8 lg:p-0"
@@ -58,10 +63,18 @@ const TodoForm = () => {
               <Input
                 type="text"
                 value={newTodo}
-                onChange={(e) => setNewTodo(e.target.value)}
+                onChange={(e) => {
+                  setNewTodo(e.target.value);
+                  if (e.target.value.length > 0) {
+                    setValidated(true);
+                  } else {
+                    setValidated(false);
+                  }
+                }}
                 className="text-lg"
                 placeholder="Add a task or note to remember..."
               />
+
               <div>
                 {isCreating ? (
                   <button className="flex items-center justify-center w-10 h-10 rounded-lg  bg-blue-300 opacity-70  cursor-pointer duration-300  pointer-events-none ">
@@ -76,6 +89,11 @@ const TodoForm = () => {
             </div>
           </div>
         </div>
+        {!isValidated ? (
+          <p className="ml-2 mt-2 text-red-500 dark:text-red-400">
+            You have to add a task or note first
+          </p>
+        ) : null}
       </form>
     </>
   );

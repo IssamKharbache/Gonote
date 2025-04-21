@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"go_backend/config"
 	"go_backend/models"
 	"strings"
@@ -11,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -47,38 +47,65 @@ func Get_users(c *fiber.Ctx) error {
 func Create_user(c *fiber.Ctx) error {
 	user := new(models.User)
 
+	// Parse request body
 	if err := c.BodyParser(user); err != nil {
-		return err
-	}
-
-	// Trim whitespace
-	user.Password = strings.TrimSpace(user.Password)
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		fmt.Printf("Hashing error: %v\n", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to hash password",
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
 		})
 	}
 
-	user.Password = string(hashedPassword)
-	_, err = userCollection.InsertOne(context.Background(), user)
-	if err != nil {
-		fmt.Printf("Database insert error while creating a user : %v\n", err)
-		return err
+	// Trim and validate inputs
+	user.ID = primitive.NewObjectID()
+	user.Email = strings.TrimSpace(user.Email)
+	user.Password = strings.TrimSpace(user.Password)
+	user.FirstName = strings.TrimSpace(user.FirstName)
+	user.LastName = strings.TrimSpace(user.LastName)
+
+	// Basic validation
+	if user.Email == "" || user.Password == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Email and password are required",
+		})
 	}
 
-	// Debug: Print final stored user
-	fmt.Printf("Stored user: %+v\n", user)
+	// Set timestamps
+	now := time.Now()
+	user.CreatedAt = now
+	user.UpdatedAt = now
 
-	return c.Status(201).JSON(UserResponse{
-		ID:        user.ID,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		Email:     user.Email,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+	// Hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to process password",
+		})
+	}
+	user.Password = string(hashedPassword)
+
+	// Insert user
+	_, err = userCollection.InsertOne(context.Background(), user)
+	if err != nil {
+		// Check for duplicate key error (unique email violation)
+		if mongo.IsDuplicateKeyError(err) {
+			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+				"error": "Email already exists",
+			})
+		}
+
+		// Handle other database errors
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to create user",
+		})
+	}
+
+	// Return success response (without password)
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"id":         user.ID,
+		"first_name": user.FirstName,
+		"last_name":  user.LastName,
+		"email":      user.Email,
+		"created_at": user.CreatedAt,
+		"updated_at": user.UpdatedAt,
 	})
 }
 

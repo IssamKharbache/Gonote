@@ -45,7 +45,6 @@ func Login(c *fiber.Ctx) error {
 	// Compare passwords
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(cleanPassword))
 	if err != nil {
-		fmt.Printf("Password comparison failed: %v\n", err)
 		return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials"})
 	}
 

@@ -3,7 +3,6 @@ import { Todo } from "./TodoList";
 import { motion } from "framer-motion";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateTodoAction } from "@/actions/todo/actions";
-import { Trash2Icon } from "lucide-react";
 import DeleteButton from "../buttons/DeleteButton";
 
 const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
@@ -14,7 +13,24 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
   const { mutate: updateTodo } = useMutation({
     mutationKey: ["updateTodo"],
     mutationFn: async () => await updateTodoAction(todo._id),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ["todos"] });
+
+      const previousTodos = queryClient.getQueryData(["todos"]);
+      setIsChecked((prev) => !prev);
+
+      return { previousTodos };
+    },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+    // Rollback to previous data on error
+    onError: (err, variables, context) => {
+      if (context?.previousTodos) {
+        queryClient.setQueryData(["todos"], context.previousTodos);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
     },
   });
@@ -114,7 +130,7 @@ const TodoState = ({ state }: { state: boolean }) => {
     );
   } else {
     return (
-      <div className="bg-yellow-300 px-4 py-1 rounded-full uppercase">
+      <div className="bg-yellow-300 px-4 py-1 rounded-full uppercase text-black">
         In progress
       </div>
     );

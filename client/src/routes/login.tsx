@@ -1,3 +1,4 @@
+import LoginForm from "@/components/forms/LoginForm";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/login")({
@@ -5,5 +6,5 @@ export const Route = createFileRoute("/login")({
 });
 
 function RouteComponent() {
-  return <div>Hello "/login"!</div>;
+  return <LoginForm />;
 }

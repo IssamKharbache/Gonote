@@ -1,4 +1,3 @@
-import { Todo } from "@/components/todo/TodoList";
 import Swal from "sweetalert2";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -20,7 +19,7 @@ export const fetchTodos = async () => {
   }
 };
 
-export const updateTodoAction = async (id: number) => {
+export const updateTodoAction = async (id: string) => {
   try {
     const res = await fetch(`${backendUrl}/api/todos/update/${id}`, {
       method: "PATCH",
@@ -47,6 +46,7 @@ export const updateTodoAction = async (id: number) => {
       title: "Something went wrong",
       text: "Check out your internet connection and try again",
     });
+    throw error;
   }
 };
 

@@ -14,11 +14,12 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Link } from "@tanstack/react-router";
+import { Link, redirect } from "@tanstack/react-router";
 import { UserPlus2Icon, Eye, EyeOff } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { createUser } from "@/actions/users/actions";
 import Swal from "sweetalert2";
+import { ApiError } from "./LoginForm";
 
 const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -47,6 +48,10 @@ const RegisterForm = () => {
         title: "Account created!",
         text: "Your account has been successfully created",
       });
+      redirect({
+        to: "/login",
+        throw: true,
+      });
       form.reset();
       setPasswordChecks({
         length: false,
@@ -55,7 +60,9 @@ const RegisterForm = () => {
         specialChar: false,
       });
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
+      console.log(error?.response?.status);
+
       Swal.fire({
         icon: "error",
         title: "Registration failed",
