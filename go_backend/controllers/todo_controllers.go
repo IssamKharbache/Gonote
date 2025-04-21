@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	"fmt"
+
 	"go_backend/config"
 	"go_backend/models"
 
@@ -128,21 +130,28 @@ func DeleteTodo(c *fiber.Ctx) error {
 }
 
 // get todo based on id handler
-func GetTodo(c *fiber.Ctx) error {
+
+func GetUserTodos(c *fiber.Ctx) error {
 	id := c.Params("id")
-	objectId, err := primitive.ObjectIDFromHex(id)
+	// Assuming id is a string, no need to convert to ObjectID
+	fmt.Println("Looking for todos of user:", id)
 
+	filter := bson.M{"user_id": id}
+	cursor, err := todoCollection.Find(context.Background(), filter)
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid todo id"})
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch todos"})
 	}
-	var result models.Todo
-	filter := bson.M{"_id": objectId}
+	defer cursor.Close(context.Background())
 
-	err = todoCollection.FindOne(context.Background(), filter).Decode(&result)
-
-	if err != nil {
-		return err
+	var todos []models.Todo
+	if err := cursor.All(context.Background(), &todos); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to decode todos"})
 	}
 
-	return c.Status(200).JSON(result)
+	// If no todos are found, return an empty array
+	if len(todos) == 0 {
+		return c.Status(200).JSON([]models.Todo{})
+	}
+
+	return c.Status(200).JSON(todos)
 }

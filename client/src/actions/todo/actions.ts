@@ -1,10 +1,24 @@
+import { ApiError } from "@/components/forms/LoginForm";
 import Swal from "sweetalert2";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
+// Helper function to get token from localStorage
+const getAuthToken = () => {
+  return localStorage.getItem("token");
+};
+
 export const fetchTodos = async () => {
   try {
-    const res = await fetch(`${backendUrl}/api/todos`);
+    const token = getAuthToken();
+    const res = await fetch(`${backendUrl}/api/todos`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : "",
+      },
+    });
+
     const data = await res.json();
     if (!res.ok) {
       throw new Error(data.message || "Something went wrong, try again later");
@@ -21,10 +35,12 @@ export const fetchTodos = async () => {
 
 export const updateTodoAction = async (id: string) => {
   try {
+    const token = getAuthToken(); // Get token
     const res = await fetch(`${backendUrl}/api/todos/update/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : "", // Add Authorization header with token
       },
     });
 
@@ -50,37 +66,49 @@ export const updateTodoAction = async (id: string) => {
   }
 };
 
-export const createTodoAction = async (body: string) => {
-  const content = JSON.stringify({ body });
+interface DataToSent {
+  user_id: string;
+  body: string;
+}
+export const createTodoAction = async (data: DataToSent) => {
+  const parsedData = JSON.stringify(data);
   try {
+    const token = getAuthToken(); // Get token
     const res = await fetch(`${backendUrl}/api/todos/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : "", // Add Authorization header with token
       },
-      body: content,
+      body: parsedData,
     });
     const data = await res.json();
     if (res.ok) {
       return data;
     } else {
-      throw new Error(data.error || "Something went wrong, try again later");
+      const error = new Error(
+        data.error || "Something went wrong, try again later"
+      ) as ApiError;
+      error.response = {
+        status: res.status,
+        statusText: res.statusText,
+        data,
+      };
+      throw error;
     }
   } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Something went wrong",
-      text: "Check out your internet connection and try again",
-    });
+    throw error;
   }
 };
 
 export const deleteTodoAction = async (id: number) => {
   try {
+    const token = getAuthToken(); // Get token
     const res = await fetch(`${backendUrl}/api/todos/delete/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : "", // Add Authorization header with token
       },
     });
 

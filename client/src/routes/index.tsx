@@ -1,5 +1,3 @@
-import TodoForm from "@/components/todo/TodoForm";
-import TodoList from "@/components/todo/TodoList";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
@@ -7,10 +5,5 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  return (
-    <main>
-      <TodoForm />
-      <TodoList />
-    </main>
-  );
+  return <main>Welcome to Gonote</main>;
 }

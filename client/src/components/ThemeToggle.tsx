@@ -68,8 +68,8 @@ const ThemeToggle = () => {
       theme === "light"
         ? iconAnimations.light
         : theme === "dark"
-        ? iconAnimations.dark
-        : iconAnimations.system;
+          ? iconAnimations.dark
+          : iconAnimations.system;
 
     const Icon = theme === "light" ? Sun : theme === "dark" ? MoonIcon : Laptop;
 
@@ -100,7 +100,7 @@ const ThemeToggle = () => {
           <WhichTheme theme={theme} hovered={isHovered} />
         </motion.button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="p-0 w-56 bg-blue-200 dark:bg-blue-900 mr-4 lg:mr-0 ">
+      <DropdownMenuContent className="p-0 w-56 bg-white dark:bg-blue-900 text-popover-foreground mr-4 lg:mr-0 ">
         <DropdownMenuLabel className="text-2xl">Theme</DropdownMenuLabel>
         <DropdownMenuSeparator className=" m-0" />
         <DropdownMenuGroup>
@@ -111,8 +111,8 @@ const ThemeToggle = () => {
                 themeItem.name === "light"
                   ? iconAnimations.light
                   : themeItem.name === "dark"
-                  ? iconAnimations.dark
-                  : iconAnimations.system;
+                    ? iconAnimations.dark
+                    : iconAnimations.system;
 
               return (
                 <motion.div
@@ -124,7 +124,7 @@ const ThemeToggle = () => {
                 >
                   <DropdownMenuItem
                     onClick={() => handleThemeChange(themeItem.name)}
-                    className="flex justify-between items-center hover:bg-blue-300/70 dark:hover:bg-blue-600 hover:cursor-pointer px-5 m-0"
+                    className="flex justify-between items-center hover:bg-blue-300/70 dark:hover:bg-blue-800 hover:cursor-pointer px-5 m-0"
                   >
                     <span className="capitalize text-2xl">
                       {themeItem.name}

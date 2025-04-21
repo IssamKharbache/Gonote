@@ -14,12 +14,13 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Link, redirect } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { UserPlus2Icon, Eye, EyeOff } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { createUser } from "@/actions/users/actions";
 import Swal from "sweetalert2";
 import { ApiError } from "./LoginForm";
+import LoadingButton from "../loaders/LoadingButton";
 
 const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +30,9 @@ const RegisterForm = () => {
     number: false,
     specialChar: false,
   });
-
+  //
+  const navigate = useNavigate();
+  //
   const form = useForm<signUpSchemaType>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -48,9 +51,8 @@ const RegisterForm = () => {
         title: "Account created!",
         text: "Your account has been successfully created",
       });
-      redirect({
+      navigate({
         to: "/login",
-        throw: true,
       });
       form.reset();
       setPasswordChecks({
@@ -61,12 +63,10 @@ const RegisterForm = () => {
       });
     },
     onError: (error: ApiError) => {
-      console.log(error?.response?.status);
-
       Swal.fire({
         icon: "error",
         title: "Registration failed",
-        text: error.message || "Please check your information and try again",
+        text: error.message || "Please check your internet and try again",
       });
     },
   });
@@ -225,13 +225,9 @@ const RegisterForm = () => {
               )}
             />
 
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 py-3 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer"
-            >
-              {isPending ? "Creating account..." : "Create account"}
-            </Button>
+            <LoadingButton type="submit" isLoading={isPending}>
+              Create Account
+            </LoadingButton>
           </form>
         </Form>
 

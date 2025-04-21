@@ -18,6 +18,7 @@ import { Route as LoginImport } from './routes/login'
 import { Route as CloudImport } from './routes/cloud'
 import { Route as IndexImport } from './routes/index'
 import { Route as UncompletedPostIdImport } from './routes/uncompleted/$postId'
+import { Route as TodosCreateImport } from './routes/todos/create'
 
 // Create Virtual Routes
 
@@ -61,6 +62,12 @@ const UncompletedPostIdRoute = UncompletedPostIdImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const TodosCreateRoute = TodosCreateImport.update({
+  id: '/todos/create',
+  path: '/todos/create',
+  getParentRoute: () => rootRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -100,6 +107,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutLazyImport
       parentRoute: typeof rootRoute
     }
+    '/todos/create': {
+      id: '/todos/create'
+      path: '/todos/create'
+      fullPath: '/todos/create'
+      preLoaderRoute: typeof TodosCreateImport
+      parentRoute: typeof rootRoute
+    }
     '/uncompleted/$postId': {
       id: '/uncompleted/$postId'
       path: '/uncompleted/$postId'
@@ -118,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/about': typeof AboutLazyRoute
+  '/todos/create': typeof TodosCreateRoute
   '/uncompleted/$postId': typeof UncompletedPostIdRoute
 }
 
@@ -127,6 +142,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/about': typeof AboutLazyRoute
+  '/todos/create': typeof TodosCreateRoute
   '/uncompleted/$postId': typeof UncompletedPostIdRoute
 }
 
@@ -137,6 +153,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/about': typeof AboutLazyRoute
+  '/todos/create': typeof TodosCreateRoute
   '/uncompleted/$postId': typeof UncompletedPostIdRoute
 }
 
@@ -148,6 +165,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/about'
+    | '/todos/create'
     | '/uncompleted/$postId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -156,6 +174,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/about'
+    | '/todos/create'
     | '/uncompleted/$postId'
   id:
     | '__root__'
@@ -164,6 +183,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/about'
+    | '/todos/create'
     | '/uncompleted/$postId'
   fileRoutesById: FileRoutesById
 }
@@ -174,6 +194,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   AboutLazyRoute: typeof AboutLazyRoute
+  TodosCreateRoute: typeof TodosCreateRoute
   UncompletedPostIdRoute: typeof UncompletedPostIdRoute
 }
 
@@ -183,6 +204,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   AboutLazyRoute: AboutLazyRoute,
+  TodosCreateRoute: TodosCreateRoute,
   UncompletedPostIdRoute: UncompletedPostIdRoute,
 }
 
@@ -201,6 +223,7 @@ export const routeTree = rootRoute
         "/login",
         "/register",
         "/about",
+        "/todos/create",
         "/uncompleted/$postId"
       ]
     },
@@ -218,6 +241,9 @@ export const routeTree = rootRoute
     },
     "/about": {
       "filePath": "about.lazy.tsx"
+    },
+    "/todos/create": {
+      "filePath": "todos/create.tsx"
     },
     "/uncompleted/$postId": {
       "filePath": "uncompleted/$postId.tsx"

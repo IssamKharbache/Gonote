@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { TbTooltip } from "react-icons/tb";
 import React, { useState } from "react";
 import { CgSpinner } from "react-icons/cg";
 import { createTodoAction } from "@/actions/todo/actions";
@@ -6,8 +7,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
 import { Input } from "../ui/input";
 import { Link } from "@tanstack/react-router";
+import { AuthenticatedUser } from "@/routes/todos/create";
 
-const TodoForm = () => {
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+const TodoForm = ({ user }: { user: AuthenticatedUser }) => {
   //states
   const [newTodo, setNewTodo] = useState<string>("");
   const [isValidated, setValidated] = useState<boolean>(true);
@@ -17,11 +26,16 @@ const TodoForm = () => {
   const { mutate: createTodo, isPending: isCreating } = useMutation({
     mutationFn: async (e: React.FormEvent) => {
       e.preventDefault();
+
       if (newTodo === "") {
         setValidated(false);
         return null;
       }
-      await createTodoAction(newTodo);
+      const allData = {
+        user_id: user.id,
+        body: newTodo,
+      };
+      await createTodoAction(allData);
     },
     mutationKey: ["createTodo"],
     onSuccess: () => {
@@ -29,30 +43,51 @@ const TodoForm = () => {
       setNewTodo("");
     },
     onError: (error) => {
-      console.log(error);
       Swal.fire({
         icon: "error",
         title: "Something went wrong",
-        text: "Check your internet connection and try again !",
+        text: error.message || "Check your internet connection and try again !",
       });
     },
   });
 
   return (
     <>
-      <div className="text-center bg-blue-100/60  dark:bg-blue-900 w-full  md:max-w-2xl mx-auto md:rounded-full p-1.5 md:mt-4">
-        <span className="text-muted-foreground dark:text-white   m-2 text-sm md:text-lg text-center">
-          Your completed tasks and notes are saved in
-          <Link
-            to="/cloud"
-            className="underline text-blue-400 hover:text-blue-600 dark:text-blue-300 dark:hover:text-blue-500 duration-200"
-          >
-            {" "}
-            your cloud
-          </Link>{" "}
-          and will be deleted after 10 days
-        </span>
+      <div className="mt-4 mb-4 max-w-2xl mx-auto flex items-center justify-between">
+        <div className="">
+          <h1 className="font-semibold text-3xl capitalize">
+            Hey, {user.first_name}
+          </h1>
+          <p className="text-muted-foreground">
+            Let’s bring your ideas to life — what do you want to accomplish
+            today?
+          </p>
+        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger className="flex items-center justify-center border-5 border-blue-300 dark:border-blue-600 w-12 h-12 rounded-full animate-pulse">
+              <TbTooltip
+                size={25}
+                className="text-blue-300 dark:text-blue-600"
+              />
+            </TooltipTrigger>
+            <TooltipContent className=" bg-blue-100/60  dark:bg-blue-900  md:max-w-2xl mx-auto  lg:mb-5 p-1.5 md:mt-4 max-w-md">
+              <span className="text-muted-foreground dark:text-white   m-2 text-sm md:text-lg ">
+                Your completed tasks and notes are saved in
+                <Link
+                  to="/cloud"
+                  className="underline text-blue-400 hover:text-blue-600 dark:text-blue-300 dark:hover:text-blue-500 duration-200"
+                >
+                  {" "}
+                  your cloud
+                </Link>{" "}
+                and will be deleted after 10 days
+              </span>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
+
       <form
         onSubmit={createTodo}
         className="max-w-2xl mx-auto mt-12 lg:mt-0 p-8 lg:p-0"

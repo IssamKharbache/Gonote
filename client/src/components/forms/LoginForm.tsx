@@ -13,7 +13,7 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Link, redirect } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { UserPlus2Icon, Eye, EyeOff } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { loginUser } from "@/actions/users/actions";
@@ -33,7 +33,7 @@ export interface ApiError {
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-
+  const navigate = useNavigate();
   const form = useForm<loginSchemaType>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -49,6 +49,11 @@ const LoginForm = () => {
         icon: "success",
         title: "Logged in!",
         text: "You've successfully logged in",
+        timer: 500,
+      });
+
+      navigate({
+        to: "/",
       });
 
       form.reset();
@@ -77,10 +82,10 @@ const LoginForm = () => {
             </div>
           </div>
           <h2 className="text-3xl font-light tracking-tight text-blue-900 dark:text-white">
-            Create your account
+            Sign in
           </h2>
           <p className="text-sm text-blue-600 dark:text-blue-300">
-            Join Task Tide to streamline your workflow
+            Welcome back , ready to be creative ?
           </p>
         </div>
 
