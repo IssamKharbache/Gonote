@@ -37,10 +37,10 @@ const NavigationMenu = () => {
                 <span>Task creator</span>
               </DropdownMenuItem>
             </Link>
-            <DropdownMenuSeparator />
+
             <Button
               onClick={logout}
-              className="w-full m-0 p-0 text-xl cursor-pointer"
+              className="w-full m-0 p-0 text-xl cursor-pointer rounded-none"
             >
               Log out
             </Button>

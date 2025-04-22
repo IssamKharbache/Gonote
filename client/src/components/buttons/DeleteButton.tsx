@@ -1,5 +1,4 @@
 import { Trash2Icon } from "lucide-react";
-import React from "react";
 import { Todo } from "../todo/TodoList";
 import Swal from "sweetalert2";
 import { deleteTodoAction } from "@/actions/todo/actions";
@@ -12,7 +11,7 @@ const DeleteButton = ({ todo }: { todo: Todo }) => {
     mutationFn: async () => await deleteTodoAction(todo._id),
     mutationKey: ["deleteTodo"],
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
+      queryClient.invalidateQueries({ queryKey: ["todos", todo.userId] });
     },
   });
   const handleDelete = () => {

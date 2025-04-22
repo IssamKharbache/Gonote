@@ -8,9 +8,14 @@ const queryClient = new QueryClient();
 
 export const Route = createRootRoute({
   component: RootComponent,
-  beforeLoad: () => ({
-    queryClient,
-  }),
+  beforeLoad: () => {
+    const user = localStorage.getItem("user");
+    const userId = user ? JSON.parse(user).id : null;
+    return {
+      queryClient,
+      userId,
+    };
+  },
 });
 
 function RootComponent() {

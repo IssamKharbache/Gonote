@@ -4,21 +4,24 @@ import { CgSpinner } from "react-icons/cg";
 import TodoItem from "./TodoItem";
 import EmptyTodoList from "../homeUi/EmptyTodoList";
 import Swal from "sweetalert2";
+import { useAuthStore } from "@/zustand/store";
 
 export type Todo = {
   _id: string;
   body: string;
   completed: boolean;
+  userId: string;
 };
 const TodoList = () => {
+  const { user } = useAuthStore();
   //react query
   const {
     data: todos,
     error,
     isLoading,
   } = useQuery<Todo[]>({
-    queryFn: () => fetchTodos(),
-    queryKey: ["todos"],
+    queryFn: () => fetchTodos(user?.id || ""),
+    queryKey: ["todos", user?.id],
   });
 
   const filteredTodos = todos?.filter((todo) => !todo.completed);
@@ -41,12 +44,12 @@ const TodoList = () => {
     Swal.fire({
       icon: "error",
       title: "Something went wrong",
-      text: "Check your internet connection and try again !",
+      text: error.message || "Check your internet connection and try again !",
     });
   }
   return (
-    <section className="max-w-xl mx-auto mt-12">
-      <div>
+    <section className="max-w-2xl mx-auto">
+      <div className="mr-5">
         {filteredTodos?.map((todo) => (
           <div key={todo._id}>
             <TodoItem todo={todo} />

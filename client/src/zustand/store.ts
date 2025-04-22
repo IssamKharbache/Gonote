@@ -22,3 +22,13 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isAuthenticated: false, user: null });
   },
 }));
+
+type UpdateTodoDialog = {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+};
+
+export const useUpdateTodoDialogStore = create<UpdateTodoDialog>((set) => ({
+  isOpen: false,
+  setIsOpen: (isOpen: boolean) => set({ isOpen }),
+}));

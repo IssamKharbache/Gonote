@@ -32,8 +32,6 @@ func GenerateJWT(userID primitive.ObjectID, email string) (string, error) {
 	return token.SignedString(jwtSecret)
 }
 func ParseJWT(tokenString string) (*Claims, error) {
-	// Add debug print
-	fmt.Printf("Token being parsed: %s\n", tokenString)
 
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {

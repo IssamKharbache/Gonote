@@ -17,4 +17,5 @@ func TodoRoutes(app *fiber.App) {
 	protected.Patch("/updateContent/:id", todo.UpdateTodoContent)
 	protected.Get("/user/:id", todo.GetUserTodos)
 	protected.Delete("/delete/:id", todo.DeleteTodo)
+	protected.Delete("/deleteOld", todo.DeleteTodaysCompletedTodos)
 }
