@@ -22,7 +22,7 @@ const LoadingButton = ({
     >
       {isLoading ? (
         <>
-          <CgSpinner className="animate-spin h-10 w-10 mr-2" />
+          <CgSpinner className="animate-spin h-8 w-8 mr-2" />
         </>
       ) : (
         children

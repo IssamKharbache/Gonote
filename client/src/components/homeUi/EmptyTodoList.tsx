@@ -26,7 +26,7 @@ export const EmptyTodoList = ({ text }: { text: string }) => {
         {/* Text Content */}
         <div className="w-full space-y-3">
           <h1 className="text-4xl font-semibold text-blue-600 dark:text-blue-400">
-            HOORAY!
+            TIME TO RELAX!
           </h1>
           <p className="text-xl text-gray-700 dark:text-gray-300">{text}</p>
         </div>

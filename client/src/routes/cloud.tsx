@@ -37,7 +37,8 @@ function RouteComponent() {
 
   const { data: todos } = useQuery<Todo[]>({
     queryKey: ["todos", user?.id],
-    queryFn: () => fetchTodos(user?.id || ""),
+    queryFn: () => fetchTodos(user?.id!),
+    enabled: !!user?.id,
   });
 
   const filteredTodos = todos?.filter((todo) => todo.completed);
