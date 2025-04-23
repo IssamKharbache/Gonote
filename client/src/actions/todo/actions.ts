@@ -8,16 +8,25 @@ export const getAuthToken = () => {
   return localStorage.getItem("token");
 };
 
-export const fetchTodos = async (userId: string) => {
+export const fetchTodos = async ({
+  pageParam = 1,
+  userId,
+}: {
+  pageParam?: number;
+  userId: string;
+}) => {
   try {
     const token = getAuthToken();
-    const res = await fetch(`${backendUrl}/api/todos/user/${userId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : "",
-      },
-    });
+    const res = await fetch(
+      `${backendUrl}/api/todos/user/${userId}?page=${pageParam}&limit=10`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      }
+    );
 
     const data = await res.json();
     if (!res.ok) {

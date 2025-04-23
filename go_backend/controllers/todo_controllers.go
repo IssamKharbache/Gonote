@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"context"
-	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -12,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var todoCollection = config.GetTodoCollection()
@@ -170,8 +171,25 @@ func DeleteTodo(c *fiber.Ctx) error {
 func GetUserTodos(c *fiber.Ctx) error {
 	id := c.Params("id")
 
+	// Parse page and limit query parameters with fallback defaults
+	page, err := strconv.Atoi(c.Query("page", "1"))
+
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	limit, err := strconv.Atoi(c.Query("limit", "10"))
+
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	skip := (page - 1) * limit
+
 	filter := bson.M{"userid": id}
-	cursor, err := todoCollection.Find(context.Background(), filter)
+	opts := options.Find().SetLimit(int64(limit)).SetSkip(int64(skip)).SetSort(bson.D{{Key: "_id", Value: -1}})
+
+	cursor, err := todoCollection.Find(context.Background(), filter, opts)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch todos"})
 	}
@@ -181,29 +199,15 @@ func GetUserTodos(c *fiber.Ctx) error {
 	if err := cursor.All(context.Background(), &todos); err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to decode todos"})
 	}
-	// If no todos are found, return an empty array
-	if len(todos) == 0 {
-		return c.Status(200).JSON([]models.Todo{})
-	}
 
 	return c.Status(200).JSON(todos)
 }
 
 func DeleteTodaysCompletedTodos(c *fiber.Ctx) error {
 	// Get today's date at midnight (start of day)
-	today := time.Now().Truncate(24 * time.Hour)
 
 	// Delete all completed todos from today
-	result, err := todoCollection.DeleteMany(
-		c.Context(),
-		bson.M{
-			"completed": true,
-			"createdAt": bson.M{
-				"$gte": today,                     // Greater than or equal to today midnight
-				"$lt":  today.Add(24 * time.Hour), // Less than tomorrow midnight
-			},
-		},
-	)
+	result, err := todoCollection.DeleteMany(c.Context(), bson.M{"completed": true})
 
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
@@ -212,13 +216,5 @@ func DeleteTodaysCompletedTodos(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(fiber.Map{
-		"success":      true,
-		"deletedCount": result.DeletedCount,
-		"message":      fmt.Sprintf("Deleted %d completed todos from today", result.DeletedCount),
-		"dateRange": fiber.Map{
-			"from": today,
-			"to":   today.Add(24 * time.Hour),
-		},
-	})
+	return c.JSON(fiber.Map{"success": true, "result": result})
 }

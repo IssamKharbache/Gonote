@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 import { Todo } from "./TodoList";
 import { motion } from "framer-motion";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,6 +15,19 @@ import {
 import { capitalizeFirstLetterOfTheString } from "@/lib/utils";
 import EditTodo from "./EditTodo";
 import { useUpdateTodoDialogStore } from "@/zustand/store";
+
+const MotionTrigger = forwardRef<
+  HTMLButtonElement,
+  { children: React.ReactNode }
+>(({ children }, ref) => (
+  <button
+    ref={ref}
+    className="flex-1 hover:underline cursor-pointer text-left p-0 border-none bg-transparent"
+  >
+    {children}
+  </button>
+));
+MotionTrigger.displayName = "MotionTrigger";
 
 const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
   const [isChecked, setIsChecked] = useState(false);
@@ -49,7 +62,7 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <div className="border rounded-2xl p-3 hover:bg-slate-100 dark:hover:bg-slate-800 duration-300 w-full m-3">
+      <div className="border rounded-2xl p-4 hover:bg-slate-100 dark:hover:bg-slate-800 duration-300 w-full m-3">
         <div className="flex items-center justify-between gap-3">
           {/* Left side - Checkbox and Text */}
           <div className="flex items-center gap-5 flex-1">
@@ -88,19 +101,20 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
               </div>
             )}
 
-            {/* Text - Now acts as the dialog trigger */}
             <DialogTrigger asChild>
-              <div className="flex-1 hover:underline cursor-pointer">
+              <button className="flex-1 hover:underline cursor-pointer text-left p-0 border-none bg-transparent">
                 {!isCloud ? (
-                  <motion.h1
-                    className={`transition-opacity text-lg md:text-xl space-x-3 line-clamp-2 text-start ${
-                      isChecked
-                        ? "opacity-50 text-gray-400"
-                        : "text-black dark:text-white"
-                    }`}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {capitalizeFirstLetterOfTheString(todo.body)}
+                  <div className="relative">
+                    <motion.span
+                      className={`block transition-opacity text-lg md:text-xl space-x-3 line-clamp-2 text-start ${
+                        isChecked
+                          ? "opacity-50 text-gray-400"
+                          : "text-black dark:text-white"
+                      }`}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {capitalizeFirstLetterOfTheString(todo.body)}
+                    </motion.span>
                     {isChecked && (
                       <motion.div
                         className="absolute left-0 top-1/2 h-0.5 bg-gray-400 origin-left"
@@ -110,13 +124,13 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
                         style={{ width: "100%" }}
                       />
                     )}
-                  </motion.h1>
+                  </div>
                 ) : (
                   <div className="text-lg md:text-2xl space-x-3">
                     {capitalizeFirstLetterOfTheString(todo.body)}
                   </div>
                 )}
-              </div>
+              </button>
             </DialogTrigger>
           </div>
 

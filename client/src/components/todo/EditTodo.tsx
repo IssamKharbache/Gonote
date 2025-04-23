@@ -3,7 +3,7 @@ import LoadingButton from "../loaders/LoadingButton";
 import { Input } from "../ui/input";
 import { Todo } from "./TodoList";
 import { updateTodoContent } from "@/actions/todo/actions";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import InputCharacterLimits from "./InputCharacterLimits";
 import { Button } from "../ui/button";
