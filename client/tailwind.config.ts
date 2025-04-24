@@ -14,7 +14,6 @@ export default {
       sans: ["Inter", "sans-serif"], // default sans font
       serif: ["Georgia", "serif"],
       mono: ["Menlo", "monospace"],
-      "special-gothic": ['"Special Gothic Condensed One"', "sans-serif"], // your custom font
     },
     extend: {
       spacing: {
