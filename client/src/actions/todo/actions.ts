@@ -59,12 +59,6 @@ export const updateTodoAction = async (id: string) => {
 
     const data = await res.json();
     if (res.ok) {
-      Swal.fire({
-        icon: "success",
-        title: "",
-        showConfirmButton: false,
-        timer: 1500,
-      });
       return data;
     } else {
       throw new Error(data.error || "Something went wrong, try again later");

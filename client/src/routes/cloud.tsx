@@ -75,8 +75,8 @@ function RouteComponent() {
 
   return (
     <section className="max-w-xl mx-auto mt-12">
-      <h1 className=" text-3xl text-center bg-blue-200 rounded  p-3 m-10">
-        Completed Tasks {isFetchingNextPage && <CgSpinner />}
+      <h1 className=" text-3xl text-center bg-blue-200 dark:bg-blue-950 rounded  p-3 m-10">
+        Completed Tasks
       </h1>
       {completedTodos.map((todo) => (
         <div key={todo._id} className="m-3">

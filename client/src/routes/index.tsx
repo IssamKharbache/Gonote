@@ -12,7 +12,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className="rounded-t-full min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 transition-colors duration-500">
+    <div className="rounded-t-full min-h-screen bg-blue-100 dark:bg-blue-950 transition-colors duration-500">
       {/* Hero Section */}
       <HeroSection />
 

@@ -30,7 +30,7 @@ const MotionTrigger = forwardRef<
 MotionTrigger.displayName = "MotionTrigger";
 
 const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
-  const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState(todo.completed || false);
   const queryClient = useQueryClient();
   const { isOpen, setIsOpen } = useUpdateTodoDialogStore();
 
@@ -68,21 +68,23 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
           <div className="flex items-center gap-5 flex-1">
             {/* Only show checkbox if not in cloud mode */}
             {!isCloud && (
-              <div className="relative flex items-center justify-center">
+              <motion.div
+                className="relative flex items-center justify-center"
+                whileTap={{ scale: 0.95 }}
+              >
                 <input
                   type="checkbox"
                   checked={isChecked}
                   onChange={(e) => {
                     e.stopPropagation();
                     updateTodo();
-                    setIsChecked(!isChecked);
                   }}
                   className="appearance-none w-5 h-5 border-2 border-gray-300 rounded cursor-pointer checked:border-none checked:bg-blue-500 transition-colors duration-200"
                 />
                 {isChecked && (
                   <motion.svg
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.2 }}
                     className="absolute w-4 h-4 text-white pointer-events-none"
                     fill="none"
@@ -98,49 +100,62 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
                     />
                   </motion.svg>
                 )}
-              </div>
+              </motion.div>
             )}
 
             <DialogTrigger asChild>
-              <button className="flex-1 hover:underline cursor-pointer text-left p-0 border-none bg-transparent">
+              <MotionTrigger>
                 {!isCloud ? (
-                  <div className="relative">
+                  <motion.div className="relative" layout>
                     <motion.span
-                      className={`block transition-opacity text-lg md:text-xl space-x-3 line-clamp-2 text-start ${
+                      className={`block text-lg md:text-xl space-x-3 line-clamp-2 text-start ${
                         isChecked
-                          ? "opacity-50 text-gray-400"
+                          ? "text-gray-400 dark:text-gray-500"
                           : "text-black dark:text-white"
                       }`}
+                      initial={false}
+                      animate={{
+                        opacity: isChecked ? 0.6 : 1,
+                      }}
                       transition={{ duration: 0.3 }}
                     >
                       {capitalizeFirstLetterOfTheString(todo.body)}
                     </motion.span>
                     {isChecked && (
                       <motion.div
-                        className="absolute left-0 top-1/2 h-0.5 bg-gray-400 origin-left"
+                        className="absolute left-0 top-1/2 h-0.5 bg-gray-400"
                         initial={{ scaleX: 0 }}
                         animate={{ scaleX: 1 }}
-                        transition={{ duration: 0.3 }}
-                        style={{ width: "100%" }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                        style={{
+                          width: "100%",
+                          originX: 0,
+                          y: "-50%",
+                        }}
                       />
                     )}
-                  </div>
+                  </motion.div>
                 ) : (
                   <div className="text-lg md:text-2xl space-x-3">
                     {capitalizeFirstLetterOfTheString(todo.body)}
                   </div>
                 )}
-              </button>
+              </MotionTrigger>
             </DialogTrigger>
           </div>
 
           {/* Right side - Status indicators */}
           {!isCloud ? (
-            <TodoState state={isChecked} />
+            <>
+              <p className="text-muted-foreground">
+                {formatTime(todo.createdAt)}
+              </p>
+              <TodoState state={isChecked} />
+            </>
           ) : (
             <div className="flex items-center gap-2">
               <div className="bg-green-400 px-4 py-1 rounded-full uppercase">
-                Completed
+                Done
               </div>
               <DeleteButton todo={todo} />
             </div>
@@ -168,12 +183,27 @@ export default TodoItem;
 
 const TodoState = ({ state }: { state: boolean }) => {
   return state ? (
-    <div className="bg-green-400 px-4 py-1 rounded-full uppercase">
-      Completed
-    </div>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
+      className="bg-green-400 px-4 py-1 rounded-full uppercase"
+    >
+      Done
+    </motion.div>
   ) : (
-    <div className="bg-yellow-300 px-4 py-1 rounded-full uppercase text-black">
-      In progress
-    </div>
+    <motion.div
+      className="bg-yellow-300 w-6 h-6 rounded-full uppercase text-black"
+      whileHover={{ scale: 1.1 }}
+    />
   );
 };
+
+function formatTime(date: Date | string | number): string {
+  // Convert to Date object if it isn't one already
+  const dateObj = date instanceof Date ? date : new Date(date);
+
+  const hours = dateObj.getHours().toString().padStart(2, "0");
+  const minutes = dateObj.getMinutes().toString().padStart(2, "0");
+  return `${hours}:${minutes}`;
+}

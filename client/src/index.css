@@ -1,5 +1,5 @@
 @font-face {
-  font-family: Gothic;
+  font-family: SpaceGrotesk;
   src: url("../src/assets/fonts/SpaceGrotesk-Regular.ttf");
   font-weight: normal;
   font-style: normal;
@@ -13,11 +13,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-gothic: Gothic, "sans-serif";
+  --font-gothic: SpaceGrotesk, "sans-serif";
 }
 
 :root {
-  --font-gothic: "Gothic", sans-serif;
+  --font-gothic: "SpaceGrotesk", sans-serif;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
