@@ -59,12 +59,12 @@ const LoginForm = () => {
       form.reset();
     },
     onError: (error: ApiError) => {
-      console.log(error);
-
       Swal.fire({
         icon: "error",
         title: "Login failed",
-        text: error.message || "Please check your information and try again",
+        text:
+          error.message ||
+          "Please check your information and internet connection and try again",
       });
     },
   });

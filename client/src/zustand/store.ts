@@ -1,3 +1,4 @@
+import { Todo } from "@/components/todo/TodoList";
 import { AuthenticatedUser } from "@/routes/todos/create";
 import { create } from "zustand";
 
@@ -31,4 +32,33 @@ type UpdateTodoDialog = {
 export const useUpdateTodoDialogStore = create<UpdateTodoDialog>((set) => ({
   isOpen: false,
   setIsOpen: (isOpen: boolean) => set({ isOpen }),
+}));
+
+type EditTodoData = {
+  selectedTodo: Todo;
+  setSelectedTodo: (todo: Todo) => void;
+};
+
+export const useEditTodoStore = create<EditTodoData>((set) => ({
+  selectedTodo: {
+    _id: "",
+    body: "",
+    userId: "",
+
+    completed: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    dueDate: new Date(),
+  },
+  setSelectedTodo: (todo) => set({ selectedTodo: todo }),
+}));
+
+type todoManagingWindow = {
+  pageName: string;
+  setPageName: (pageName: string) => void;
+};
+
+export const useTodoManagingWindowStore = create<todoManagingWindow>((set) => ({
+  pageName: "",
+  setPageName: (pageName) => set({ pageName }),
 }));

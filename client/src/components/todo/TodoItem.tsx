@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { capitalizeFirstLetterOfTheString } from "@/lib/utils";
 import EditTodo from "./EditTodo";
-import { useUpdateTodoDialogStore } from "@/zustand/store";
+import { useEditTodoStore, useUpdateTodoDialogStore } from "@/zustand/store";
 
 const MotionTrigger = forwardRef<
   HTMLButtonElement,
@@ -30,13 +30,14 @@ const MotionTrigger = forwardRef<
 MotionTrigger.displayName = "MotionTrigger";
 
 const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
-  const [isChecked, setIsChecked] = useState(todo.completed || false);
+  const { selectedTodo, setSelectedTodo } = useEditTodoStore();
+  const [isChecked, setIsChecked] = useState(todo?.completed || false);
   const queryClient = useQueryClient();
   const { isOpen, setIsOpen } = useUpdateTodoDialogStore();
 
   const { mutate: updateTodo } = useMutation({
     mutationKey: ["updateTodo"],
-    mutationFn: async () => await updateTodoAction(todo._id),
+    mutationFn: async () => await updateTodoAction(todo?._id || ""),
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ["todos"] });
       const previousTodos = queryClient.getQueryData(["todos"]);
@@ -44,7 +45,9 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
       return { previousTodos };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos", todo.userId] });
+      queryClient.invalidateQueries({
+        queryKey: ["todos", todo?.userId],
+      });
     },
     onError: (err, variables, context) => {
       if (context?.previousTodos) {
@@ -52,12 +55,20 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos", todo.userId] });
+      queryClient.invalidateQueries({
+        queryKey: ["todos", todo?.userId],
+      });
     },
   });
 
   const handleOpenChange = () => {
+    setSelectedTodo(todo);
     setIsOpen(!isOpen);
+  };
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    updateTodo();
   };
 
   return (
@@ -66,7 +77,6 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
         <div className="flex items-center justify-between gap-3">
           {/* Left side - Checkbox and Text */}
           <div className="flex items-center gap-5 flex-1">
-            {/* Only show checkbox if not in cloud mode */}
             {!isCloud && (
               <motion.div
                 className="relative flex items-center justify-center"
@@ -75,10 +85,8 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
                 <input
                   type="checkbox"
                   checked={isChecked}
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    updateTodo();
-                  }}
+                  onChange={handleCheckboxChange}
+                  onClick={(e) => e.stopPropagation()}
                   className="appearance-none w-5 h-5 border-2 border-gray-300 rounded cursor-pointer checked:border-none checked:bg-blue-500 transition-colors duration-200"
                 />
                 {isChecked && (
@@ -105,41 +113,43 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
 
             <DialogTrigger asChild>
               <MotionTrigger>
-                {!isCloud ? (
-                  <motion.div className="relative" layout>
-                    <motion.span
-                      className={`block text-lg md:text-xl space-x-3 line-clamp-2 text-start ${
-                        isChecked
-                          ? "text-gray-400 dark:text-gray-500"
-                          : "text-black dark:text-white"
-                      }`}
-                      initial={false}
-                      animate={{
-                        opacity: isChecked ? 0.6 : 1,
-                      }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {capitalizeFirstLetterOfTheString(todo.body)}
-                    </motion.span>
-                    {isChecked && (
-                      <motion.div
-                        className="absolute left-0 top-1/2 h-0.5 bg-gray-400"
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ duration: 0.3, ease: "easeOut" }}
-                        style={{
-                          width: "100%",
-                          originX: 0,
-                          y: "-50%",
+                <div className="relative">
+                  {!isCloud ? (
+                    <motion.div className="relative" layout>
+                      <motion.span
+                        className={`block text-lg md:text-xl space-x-3 line-clamp-2 text-start ${
+                          isChecked
+                            ? "text-gray-400 dark:text-gray-500"
+                            : "text-black dark:text-white"
+                        }`}
+                        initial={false}
+                        animate={{
+                          opacity: isChecked ? 0.6 : 1,
                         }}
-                      />
-                    )}
-                  </motion.div>
-                ) : (
-                  <div className="text-lg md:text-2xl space-x-3">
-                    {capitalizeFirstLetterOfTheString(todo.body)}
-                  </div>
-                )}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {capitalizeFirstLetterOfTheString(todo?.body)}
+                      </motion.span>
+                      {isChecked && (
+                        <motion.div
+                          className="absolute left-0 top-1/2 h-0.5 bg-gray-400"
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: 1 }}
+                          transition={{ duration: 0.3, ease: "easeOut" }}
+                          style={{
+                            width: "100%",
+                            originX: 0,
+                            y: "-50%",
+                          }}
+                        />
+                      )}
+                    </motion.div>
+                  ) : (
+                    <div className="text-lg md:text-2xl space-x-3">
+                      {capitalizeFirstLetterOfTheString(todo.body || "")}
+                    </div>
+                  )}
+                </div>
               </MotionTrigger>
             </DialogTrigger>
           </div>
@@ -148,16 +158,18 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
           {!isCloud ? (
             <>
               <p className="text-muted-foreground">
-                {formatTime(todo.createdAt)}
+                {formatTime(todo?.createdAt || "")}
               </p>
               <TodoState state={isChecked} />
             </>
           ) : (
             <div className="flex items-center gap-2">
+              <p className="text-muted-foreground">
+                {formatTime(todo?.createdAt || "")}
+              </p>
               <div className="bg-green-400 px-4 py-1 rounded-full uppercase">
                 Done
               </div>
-              <DeleteButton todo={todo} />
             </div>
           )}
         </div>
@@ -172,7 +184,7 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
           </DialogDescription>
         </DialogHeader>
         <div>
-          <EditTodo todo={todo} />
+          <EditTodo todo={selectedTodo} />
         </div>
       </DialogContent>
     </Dialog>
@@ -200,9 +212,7 @@ const TodoState = ({ state }: { state: boolean }) => {
 };
 
 function formatTime(date: Date | string | number): string {
-  // Convert to Date object if it isn't one already
   const dateObj = date instanceof Date ? date : new Date(date);
-
   const hours = dateObj.getHours().toString().padStart(2, "0");
   const minutes = dateObj.getMinutes().toString().padStart(2, "0");
   return `${hours}:${minutes}`;

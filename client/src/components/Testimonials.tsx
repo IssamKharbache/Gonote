@@ -3,14 +3,14 @@ import { motion } from "framer-motion";
 const testimonials = [
   {
     quote:
-      "Gonote has transformed how I work. The dark mode is perfect for late-night productivity sessions.",
+      "Task tide has transformed how I work. The dark mode is perfect for late-night productivity sessions.",
     author: "Alex Rivera",
     role: "Software Engineer",
     stars: 5,
   },
   {
     quote:
-      "I've tried every todo app out there. None come close to the elegance and simplicity of Gonote.",
+      "I've tried every todo app out there. None come close to the elegance and simplicity of task tide.",
     author: "Sophie Chen",
     role: "Product Designer",
     stars: 5,

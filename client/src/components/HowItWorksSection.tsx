@@ -70,7 +70,7 @@ export default function HowItWorksSection() {
               <div className="relative h-96 p-6 overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
                   <div className="text-blue-900 dark:text-blue-100 font-bold text-xl">
-                    GoNote
+                    Task tide
                   </div>
                   <div className="flex gap-2">
                     <div className="w-3 h-3 rounded-full bg-blue-400"></div>

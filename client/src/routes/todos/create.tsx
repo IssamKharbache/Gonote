@@ -1,6 +1,8 @@
+import Sidebar from "@/components/navbar/Sidebar";
+import CompletedTodos from "@/components/todo/CompletedTodos";
 import TodoForm from "@/components/todo/TodoForm";
 import TodoList from "@/components/todo/TodoList";
-import { useAuthStore } from "@/zustand/store";
+import { useAuthStore, useTodoManagingWindowStore } from "@/zustand/store";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
@@ -39,15 +41,29 @@ function RouteComponent() {
   const { user } = Route.useLoaderData();
   const { isAuthenticated } = useAuthStore();
 
+  const { pageName } = useTodoManagingWindowStore();
+
   if (!isAuthenticated) {
     navigate({
       to: "/login",
     });
   }
+
   return (
-    <>
-      <TodoForm user={user} />
-      <TodoList />
-    </>
+    <div className="flex gap-5 border-2 rounded-lg">
+      <div className="flex-1">
+        <Sidebar />
+      </div>
+      <div className="flex-2">
+        {pageName === "" ? (
+          <>
+            <TodoForm user={user} />
+            <TodoList />
+          </>
+        ) : (
+          <CompletedTodos />
+        )}
+      </div>
+    </div>
   );
 }

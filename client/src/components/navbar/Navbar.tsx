@@ -8,7 +8,7 @@ export default function Navbar() {
       <Link to="/">
         <div className="relative ml-3  bg-white dark:bg-blue-900 text-blue-900 dark:text-white p-2 rounded-full  transition-colors duration-300 px-10">
           <div className="bg-blue-500  absolute -top-8 -left-5 w-12 h-12 rounded-full" />
-          <p className="text-3xl ">GoNote</p>
+          <p className="text-3xl ">Task tide</p>
         </div>
       </Link>
       <div className="flex items-center gap-4 mr-5">

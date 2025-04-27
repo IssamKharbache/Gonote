@@ -4,7 +4,7 @@ import { CgSpinner } from "react-icons/cg";
 import TodoItem from "./TodoItem";
 import EmptyTodoList from "../homeUi/EmptyTodoList";
 import Swal from "sweetalert2";
-import { useAuthStore } from "@/zustand/store";
+import { useAuthStore, useEditTodoStore } from "@/zustand/store";
 import { useEffect, useRef, useState } from "react";
 import DeleteButton from "../buttons/DeleteButton";
 import { IoIosArrowDown } from "react-icons/io";
@@ -13,17 +13,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { addDays, format } from "date-fns";
-import EditTodo from "./EditTodo";
+
+import { addDays } from "date-fns";
+
 import { useUpdateTodoDialogStore } from "@/zustand/store";
 
 export type Todo = {
@@ -40,9 +32,10 @@ const TodoList = () => {
   const { user } = useAuthStore();
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [isTodayOpen, setIsTodayOpen] = useState(true);
-  const { isOpen, setIsOpen } = useUpdateTodoDialogStore();
-  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+  const [isAllTasksOpen, setIsAllTasksOpen] = useState(true);
+  const { selectedTodo, setSelectedTodo } = useEditTodoStore();
   const [dueOption, setDueOption] = useState<"today" | "tomorrow" | null>(null);
+  const { isOpen, setIsOpen } = useUpdateTodoDialogStore();
 
   const {
     data,
@@ -65,13 +58,33 @@ const TodoList = () => {
 
   const handleSetDueDate = (todo: Todo, daysToAdd: number) => {
     const dueDate = addDays(new Date(), daysToAdd);
-    // Here you would call your API to update the todo with the dueDate
+    // API call to update todo would go here
     console.log(`Setting due date for ${todo.body} to ${dueDate}`);
-    // After setting, you might want to invalidate the query to refresh
   };
 
   const todos = data?.pages.flat() || [];
   const filteredTodos = todos.filter((todo) => !todo.completed);
+
+  // Categorize todos exactly like in your original component
+  const todayTodos = filteredTodos.filter((todo) => {
+    const todoDate = new Date(todo.createdAt);
+    const today = new Date();
+    return (
+      todoDate.getDate() === today.getDate() &&
+      todoDate.getMonth() === today.getMonth() &&
+      todoDate.getFullYear() === today.getFullYear()
+    );
+  });
+
+  const otherTodos = filteredTodos.filter((todo) => {
+    const todoDate = new Date(todo.createdAt);
+    const today = new Date();
+    return !(
+      todoDate.getDate() === today.getDate() &&
+      todoDate.getMonth() === today.getMonth() &&
+      todoDate.getFullYear() === today.getFullYear()
+    );
+  });
 
   useEffect(() => {
     if (!loadMoreRef.current || !hasNextPage) return;
@@ -116,19 +129,24 @@ const TodoList = () => {
     });
   }
 
-  const todayTodos = filteredTodos.filter((todo) => {
-    const todoDate = new Date(todo.createdAt);
-    const today = new Date();
-    return (
-      todoDate.getDate() === today.getDate() &&
-      todoDate.getMonth() === today.getMonth() &&
-      todoDate.getFullYear() === today.getFullYear()
-    );
-  });
+  const renderTodoItem = (todo: Todo) => (
+    <div className="flex items-center gap-10" key={todo._id}>
+      <div
+        className="flex-1 cursor-pointer"
+        onClick={() => {
+          setSelectedTodo(todo);
+          setIsOpen(true);
+        }}
+      >
+        <TodoItem todo={todo} />
+      </div>
+      <DeleteButton todo={selectedTodo} />
+    </div>
+  );
 
   return (
     <section className="max-w-2xl mx-auto">
-      {/* Collapsible Today Section */}
+      {/* Today Section - exactly like your original */}
       <Collapsible
         open={isTodayOpen}
         onOpenChange={setIsTodayOpen}
@@ -149,70 +167,32 @@ const TodoList = () => {
         </div>
 
         <CollapsibleContent className="space-y-2">
-          <div className="mr-5">
-            {todayTodos.map((todo) => (
-              <div className="flex items-center gap-2" key={todo._id}>
-                <TodoItem todo={todo} />
+          <div className="mr-5">{todayTodos.map(renderTodoItem)}</div>
+        </CollapsibleContent>
+      </Collapsible>
 
-                {/* Edit Dialog Trigger */}
-                <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedTodo(todo)}
-                    >
-                      Edit
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Edit Task</DialogTitle>
-                      <DialogDescription>
-                        Make changes to your task here.
-                      </DialogDescription>
-                    </DialogHeader>
+      {/* Other Tasks Section */}
+      <Collapsible
+        open={isAllTasksOpen}
+        onOpenChange={setIsAllTasksOpen}
+        className="space-y-2 mt-4"
+      >
+        <div className="flex items-center justify-between px-4">
+          <CollapsibleTrigger className="flex gap-4 items-center">
+            <IoIosArrowDown
+              className={`transition-transform ${
+                isAllTasksOpen ? "rotate-180" : ""
+              }`}
+            />
+            <p className="font-medium">
+              All Tasks{" "}
+              <span className="text-muted-foreground">{otherTodos.length}</span>
+            </p>
+          </CollapsibleTrigger>
+        </div>
 
-                    {/* Original Edit Form */}
-                    <EditTodo todo={todo} />
-
-                    {/* Due Date Quick Options */}
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium">Set Due Date:</p>
-                      <div className="flex gap-2">
-                        <Button
-                          variant={
-                            dueOption === "today" ? "default" : "outline"
-                          }
-                          size="sm"
-                          onClick={() => {
-                            setDueOption("today");
-                            handleSetDueDate(todo, 0);
-                          }}
-                        >
-                          Today
-                        </Button>
-                        <Button
-                          variant={
-                            dueOption === "tomorrow" ? "default" : "outline"
-                          }
-                          size="sm"
-                          onClick={() => {
-                            setDueOption("tomorrow");
-                            handleSetDueDate(todo, 1);
-                          }}
-                        >
-                          Tomorrow
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-
-                <DeleteButton todo={todo} />
-              </div>
-            ))}
-          </div>
+        <CollapsibleContent className="space-y-2">
+          <div className="mr-5">{otherTodos.map(renderTodoItem)}</div>
         </CollapsibleContent>
       </Collapsible>
 

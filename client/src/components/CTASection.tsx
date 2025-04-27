@@ -15,8 +15,8 @@ export default function CTASection() {
             productivity?
           </h2>
           <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-            Join thousands who have already streamlined their workflow with
-            Gonote.
+            Join thousands who have already streamlined their workflow with Task
+            tide.
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}

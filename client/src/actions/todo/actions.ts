@@ -17,6 +17,9 @@ export const fetchTodos = async ({
 }) => {
   try {
     const token = getAuthToken();
+    if (!token || !userId) {
+      throw new Error("Not authenticated");
+    }
     const res = await fetch(
       `${backendUrl}/api/todos/user/${userId}?page=${pageParam}&limit=10`,
       {
@@ -29,6 +32,7 @@ export const fetchTodos = async ({
     );
 
     const data = await res.json();
+
     if (!res.ok) {
       const error = new Error(
         data.error || "Something went wrong, try again later"
@@ -53,7 +57,7 @@ export const updateTodoAction = async (id: string) => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : "", // Add Authorization header with token
+        Authorization: token ? `Bearer ${token}` : "",
       },
     });
 
