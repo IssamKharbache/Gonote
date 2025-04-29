@@ -4,7 +4,11 @@ import { CgSpinner } from "react-icons/cg";
 import TodoItem from "./TodoItem";
 import EmptyTodoList from "../homeUi/EmptyTodoList";
 import Swal from "sweetalert2";
-import { useAuthStore, useEditTodoStore } from "@/zustand/store";
+import {
+  useAuthStore,
+  useEditTodoStore,
+  useUpdateTodoDialogStore,
+} from "@/zustand/store";
 import { useEffect, useRef, useState } from "react";
 import DeleteButton from "../buttons/DeleteButton";
 import { IoIosArrowDown } from "react-icons/io";
@@ -14,9 +18,14 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { addDays } from "date-fns";
-
-import { useUpdateTodoDialogStore } from "@/zustand/store";
+import EditTodo from "./EditTodo";
 
 export type Todo = {
   _id: string;
@@ -34,7 +43,6 @@ const TodoList = () => {
   const [isTodayOpen, setIsTodayOpen] = useState(true);
   const [isAllTasksOpen, setIsAllTasksOpen] = useState(true);
   const { selectedTodo, setSelectedTodo } = useEditTodoStore();
-  const [dueOption, setDueOption] = useState<"today" | "tomorrow" | null>(null);
   const { isOpen, setIsOpen } = useUpdateTodoDialogStore();
 
   const {
@@ -56,16 +64,9 @@ const TodoList = () => {
     enabled: !!user?.id,
   });
 
-  const handleSetDueDate = (todo: Todo, daysToAdd: number) => {
-    const dueDate = addDays(new Date(), daysToAdd);
-    // API call to update todo would go here
-    console.log(`Setting due date for ${todo.body} to ${dueDate}`);
-  };
-
   const todos = data?.pages.flat() || [];
   const filteredTodos = todos.filter((todo) => !todo.completed);
 
-  // Categorize todos exactly like in your original component
   const todayTodos = filteredTodos.filter((todo) => {
     const todoDate = new Date(todo.createdAt);
     const today = new Date();
@@ -140,13 +141,13 @@ const TodoList = () => {
       >
         <TodoItem todo={todo} />
       </div>
-      <DeleteButton todo={selectedTodo} />
+      <DeleteButton todo={todo} />
     </div>
   );
 
   return (
     <section className="max-w-2xl mx-auto">
-      {/* Today Section - exactly like your original */}
+      {/* Today Section */}
       <Collapsible
         open={isTodayOpen}
         onOpenChange={setIsTodayOpen}
@@ -206,6 +207,34 @@ const TodoList = () => {
             />
           ))}
       </div>
+
+      <Dialog
+        open={isOpen}
+        onOpenChange={(open) => {
+          setSelectedTodo({
+            _id: "",
+            body: "",
+            completed: false,
+            userId: user?.id || "",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            dueDate: undefined,
+          });
+          setIsOpen(open);
+        }}
+      >
+        <DialogContent>
+          {selectedTodo && (
+            <div className="space-y-4">
+              <DialogTitle>Edit Task</DialogTitle>
+              <DialogDescription>
+                You can edit the content of your task below.
+              </DialogDescription>
+              <EditTodo todo={selectedTodo} />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };

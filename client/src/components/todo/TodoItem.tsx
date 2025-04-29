@@ -3,7 +3,6 @@ import { Todo } from "./TodoList";
 import { motion } from "framer-motion";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateTodoAction } from "@/actions/todo/actions";
-import DeleteButton from "../buttons/DeleteButton";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { capitalizeFirstLetterOfTheString } from "@/lib/utils";
 import EditTodo from "./EditTodo";
-import { useEditTodoStore, useUpdateTodoDialogStore } from "@/zustand/store";
+import { useEditTodoStore } from "@/zustand/store";
 
 const MotionTrigger = forwardRef<
   HTMLButtonElement,
@@ -32,9 +31,11 @@ MotionTrigger.displayName = "MotionTrigger";
 const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
   const { selectedTodo, setSelectedTodo } = useEditTodoStore();
   const [isChecked, setIsChecked] = useState(todo?.completed || false);
+  const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { isOpen, setIsOpen } = useUpdateTodoDialogStore();
-
+  const dueDate = todo.dueDate ? new Date(todo.dueDate) : null;
+  const showDueDate =
+    dueDate && dueDate.getTime() !== new Date(todo.createdAt).getTime();
   const { mutate: updateTodo } = useMutation({
     mutationKey: ["updateTodo"],
     mutationFn: async () => await updateTodoAction(todo?._id || ""),
@@ -61,9 +62,21 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
     },
   });
 
-  const handleOpenChange = () => {
-    setSelectedTodo(todo);
-    setIsOpen(!isOpen);
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setSelectedTodo({
+        _id: "",
+        body: "",
+        completed: false,
+        userId: "",
+        dueDate: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    } else {
+      setSelectedTodo(todo);
+    }
+    setIsOpen(open);
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,15 +171,14 @@ const TodoItem = ({ todo, isCloud }: { todo: Todo; isCloud?: boolean }) => {
           {!isCloud ? (
             <>
               <p className="text-muted-foreground">
-                {formatTime(todo?.createdAt || "")}
+                {formatIsoDateToCustomFormat(todo?.dueDate) !== "Dec 31"
+                  ? formatIsoDateToCustomFormat(todo?.dueDate)
+                  : null}
               </p>
               <TodoState state={isChecked} />
             </>
           ) : (
             <div className="flex items-center gap-2">
-              <p className="text-muted-foreground">
-                {formatTime(todo?.createdAt || "")}
-              </p>
               <div className="bg-green-400 px-4 py-1 rounded-full uppercase">
                 Done
               </div>
@@ -211,9 +223,17 @@ const TodoState = ({ state }: { state: boolean }) => {
   );
 };
 
-function formatTime(date: Date | string | number): string {
-  const dateObj = date instanceof Date ? date : new Date(date);
-  const hours = dateObj.getHours().toString().padStart(2, "0");
-  const minutes = dateObj.getMinutes().toString().padStart(2, "0");
-  return `${hours}:${minutes}`;
+function formatIsoDateToCustomFormat(isoDate: Date | undefined): string {
+  if (isoDate) {
+    const date = new Date(isoDate);
+
+    // Correctly typing the options object
+    const options: Intl.DateTimeFormatOptions = {
+      month: "short",
+      day: "numeric",
+    };
+
+    return date.toLocaleDateString("en-US", options);
+  }
+  return "";
 }

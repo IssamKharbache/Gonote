@@ -24,15 +24,17 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 }));
 
-type UpdateTodoDialog = {
+type UpdateTodoDialogState = {
   isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
+  setIsOpen: (open: boolean) => void;
 };
 
-export const useUpdateTodoDialogStore = create<UpdateTodoDialog>((set) => ({
-  isOpen: false,
-  setIsOpen: (isOpen: boolean) => set({ isOpen }),
-}));
+export const useUpdateTodoDialogStore = create<UpdateTodoDialogState>(
+  (set) => ({
+    isOpen: false,
+    setIsOpen: (open) => set({ isOpen: open }),
+  })
+);
 
 type EditTodoData = {
   selectedTodo: Todo;

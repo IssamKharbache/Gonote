@@ -144,7 +144,11 @@ export const deleteTodoAction = async (id: string) => {
   }
 };
 
-export const updateTodoContent = async (id: string, value: string) => {
+export const updateTodoContent = async (
+  id: string,
+  data: { body: string; dueDate?: Date }
+) => {
+  const { body, dueDate } = data;
   try {
     const res = await fetch(`${backendUrl}/api/todos/updateContent/${id}`, {
       method: "PATCH",
@@ -152,9 +156,7 @@ export const updateTodoContent = async (id: string, value: string) => {
         "Content-Type": "application/json",
         Authorization: getAuthToken() ? `Bearer ${getAuthToken()}` : "",
       },
-      body: JSON.stringify({
-        body: value,
-      }),
+      body: JSON.stringify({ body, dueDate }),
     });
     const data = await res.json();
     if (res.ok) {

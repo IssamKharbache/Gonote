@@ -91,8 +91,8 @@ func UpdateTodo(c *fiber.Ctx) error {
 }
 
 // update content of todo
-func UpdateTodoContent(c *fiber.Ctx) error {
 
+func UpdateTodoContent(c *fiber.Ctx) error {
 	id := c.Params("id")
 	objectId, err := primitive.ObjectIDFromHex(id)
 
@@ -100,7 +100,7 @@ func UpdateTodoContent(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid todo id"})
 	}
 
-	//initalizing the todo
+	// Initializing the todo struct
 	todo := new(models.Todo)
 	if err := c.BodyParser(todo); err != nil {
 		return err
@@ -109,40 +109,50 @@ func UpdateTodoContent(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Todo content is required"})
 	}
 
-	//fetching that todo from database
+	// Fetching that todo from the database
 	var existingTodo models.Todo
 	err = todoCollection.FindOne(context.Background(), bson.M{"_id": objectId}).Decode(&existingTodo)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"error": "Todo not found"})
 	}
-	//checking if the body content is as same as before
-	if todo.Body == existingTodo.Body {
-		return c.Status(400).JSON(fiber.Map{"error": "Todo content is same as before"})
+
+	// Checking if the body content is the same as before
+	if todo.Body == "" && todo.DueDate.IsZero() {
+		return c.Status(400).JSON(fiber.Map{"error": "At least the content or due date must be provided"})
 	}
-	//getting the user id from the locals
+
+	// Getting the user ID from the locals
 	userID := c.Locals("userID")
-	//checking if the user id is nil
+	// Checking if the user ID is nil
 	if userID == nil {
 		return c.Status(401).JSON(fiber.Map{"error": "Unauthorized"})
 	}
-	//checking if the user id is same as the one in the todo
+	// Checking if the user ID is the same as the one in the todo
 	if existingTodo.UserID != userID.(string) {
 		return c.Status(403).JSON(fiber.Map{"error": "You are not authorized to update this todo"})
 	}
 
-	//filters
+	// Filters
 	filter := bson.M{"_id": objectId}
-	//update
-	update := bson.M{"$set": bson.M{"body": todo.Body}}
 
-	//updating the content
+	// Prepare the update object
+	updateFields := bson.M{"body": todo.Body}
+
+	// If due date is provided, update it
+	if todo.DueDate != (time.Time{}) {
+		updateFields["dueDate"] = todo.DueDate
+	}
+
+	// Update the todo in the database
+	update := bson.M{"$set": updateFields}
+
 	_, err = todoCollection.UpdateOne(context.Background(), filter, update)
 
 	if err != nil {
 		return err
 	}
-	return c.Status(200).JSON(fiber.Map{"success": true, "message": "Todo updated successfully"})
 
+	return c.Status(200).JSON(fiber.Map{"success": true, "message": "Todo updated successfully"})
 }
 
 // delete todo handler

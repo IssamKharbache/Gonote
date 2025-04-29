@@ -22,6 +22,7 @@ const Sidebar = () => {
           </span>
         </div>
         <div
+          onClick={() => setPageName("")}
           className={`${pageName === "" ? "bg-blue-500 text-white" : "bg-white"} rounded-lg w-10 h-10 flex items-center justify-center cursor-pointer`}
         >
           <FaCheck size={15} />

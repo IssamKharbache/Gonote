@@ -42,12 +42,13 @@ function RouteComponent() {
   const { isAuthenticated } = useAuthStore();
 
   const { pageName } = useTodoManagingWindowStore();
-
-  if (!isAuthenticated) {
-    navigate({
-      to: "/login",
-    });
-  }
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate({
+        to: "/login",
+      });
+    }
+  }, [isAuthenticated]);
 
   return (
     <div className="flex gap-5 border-2 rounded-lg">
